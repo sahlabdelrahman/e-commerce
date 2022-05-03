@@ -1,4 +1,4 @@
-import { useState } from "react";
+import useInput from "../../hooks/useInput";
 
 import { auth } from "../../firebase";
 import { sendSignInLinkToEmail } from "firebase/auth";
@@ -6,7 +6,11 @@ import { sendSignInLinkToEmail } from "firebase/auth";
 import { toast } from "react-toastify";
 
 const Register = () => {
-  const [email, setEmail] = useState("");
+  const {
+    value: email,
+    resetValue: resetEmail,
+    bind: bindEmail,
+  } = useInput("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,15 +25,14 @@ const Register = () => {
       `Email is sent to email ${email}. Click the link to complete your registration.`
     );
     window.localStorage.setItem("emailForRegistration", email);
-    setEmail("");
+    resetEmail();
   };
 
   const registerForm = () => (
     <form onSubmit={handleSubmit}>
       <input
         type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        {...bindEmail}
         autoFocus
         required
         className="form-control"

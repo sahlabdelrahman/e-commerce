@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import useInput from "../../hooks/useInput";
 import { useNavigate } from "react-router-dom";
 
 import { auth } from "../../firebase";
@@ -7,12 +8,13 @@ import { signInWithEmailLink, updatePassword } from "firebase/auth";
 import { toast } from "react-toastify";
 
 const RegisterComplete = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { value: email, setValue: setEmail, bind: bindEmail } = useInput("");
+
+  const { value: password, bind: bindPassword } = useInput("");
 
   useEffect(() => {
     setEmail(window.localStorage.getItem("emailForRegistration"));
-  }, []);
+  }, [setEmail]);
 
   let navigate = useNavigate();
 
@@ -56,12 +58,11 @@ const RegisterComplete = () => {
 
   const completeRegistrationForm = () => (
     <form onSubmit={handleSubmit}>
-      <input type="email" disabled value={email} className="form-control" />
+      <input type="email" disabled {...bindEmail} className="form-control" />
       <br />
       <input
         type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        {...bindPassword}
         autoFocus
         placeholder="Password"
         className="form-control"

@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
 import { signOut } from "firebase/auth";
 import { auth } from "../../firebase";
 
-import { LOGOUT } from "../../store/types/user.type";
+import { logout } from "../../store/actions/user.action";
 
 import { Menu } from "antd";
 import {
@@ -22,18 +22,17 @@ const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const { user } = useSelector((state) => state);
+
   const { Item, SubMenu } = Menu;
 
   const handleCurrent = (e) => {
     setCurrent(e.key);
   };
 
-  const logout = () => {
+  const handleLogout = () => {
     signOut(auth);
-    dispatch({
-      type: LOGOUT,
-      payload: null,
-    });
+    dispatch(logout(null));
     navigate("/login");
   };
 
@@ -46,27 +45,43 @@ const Header = () => {
       <Item key="home" icon={<AppstoreOutlined />}>
         <Link to="/">Home</Link>
       </Item>
-      <SubMenu key="SubMenu" title="Username" icon={<SettingOutlined />}>
-        <Item key="two" icon={<UserOutlined />}>
-          <Link to="/login">Login</Link>
-        </Item>
 
-        <Item key="three" icon={<UserAddOutlined />}>
-          <Link to="/register">Register</Link>
-        </Item>
+      {user && (
+        <SubMenu
+          className="float-right"
+          key="SubMenu"
+          title={user.email && user.email.split("@")[0]}
+          icon={<SettingOutlined />}
+        >
+          <Item key="two" icon={<UserOutlined />}>
+            <Link to="/login">Login</Link>
+          </Item>
 
-        <Item key="logout" icon={<LoginOutlined />} onClick={logout}>
-          Logout
-        </Item>
-      </SubMenu>
+          <Item key="three" icon={<UserAddOutlined />}>
+            <Link to="/register">Register</Link>
+          </Item>
 
-      <Item key="register" icon={<UserAddOutlined />} className="float-right">
-        <Link to="/register">Register</Link>
-      </Item>
+          <Item key="logout" icon={<LoginOutlined />} onClick={handleLogout}>
+            Logout
+          </Item>
+        </SubMenu>
+      )}
 
-      <Item key="login" icon={<UserOutlined />} className="float-right">
-        <Link to="/login">Login</Link>
-      </Item>
+      {!user && (
+        <>
+          <Item
+            key="register"
+            icon={<UserAddOutlined />}
+            className="float-right"
+          >
+            <Link to="/register">Register</Link>
+          </Item>
+
+          <Item key="login" icon={<UserOutlined />} className="float-right">
+            <Link to="/login">Login</Link>
+          </Item>
+        </>
+      )}
     </Menu>
   );
 };
